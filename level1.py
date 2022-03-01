@@ -138,9 +138,6 @@ def main():
 
     # # jak misplaced to nie mozna byc w miejscu w ktorym bylo
     print(len(words))
-    writeToFile(words)
+    # writeToFile(words)
 
     # print(['_', '_', 'o', '_', '_'].filter(lambda val: val != '_'))
-
-
-main()
