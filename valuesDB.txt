@@ -6298,7 +6298,6 @@ cosey: 5.1699
 suint: 5.17
 supra: 5.17
 walie: 5.17
-locie: 5.1701
 retag: 5.1703
 monie: 5.1703
 pikes: 5.1707

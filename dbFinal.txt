@@ -1898,7 +1898,6 @@ gowfs
 acyls
 slice
 rahed
-locie
 scran
 feods
 yelps
