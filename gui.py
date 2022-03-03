@@ -4,9 +4,8 @@ import level2
 import freqFilter
 
 
-# import tinker
-# def calculate():
-#     first_word = "tares"
+# add second option
+# checkboxy zjebałem
 def wordToStateList(word, result):
     misplaced = []
     correct = []
@@ -51,19 +50,22 @@ def allWordsToList():
 def getBestWord(words, possible_words):
     bitsValues = level2.evaluate(words, possible_words)
     words, bitsValues = level2.sort(bitsValues, possible_words)
-    return words[-1]
+    if len(words) > 1:
+        return words[-1], words[-2]
+    else:
+        return words[-1], None
 
 
 def filterWordsList(words, correct, misplaced, wrong):
     if correct != ['_'] * 5:
         words = level1.correct_letters(correct, words)
     if misplaced != ['_'] * 5:
-        words = level1.misplaced_letters(misplaced, words)
+        words = level1.misplaced_letters(misplaced, words, correctList=correct)
     if len(wrong) > 0:
         words = level1.not_in_word_letters(wrong, words)
     return words
 
-# nie znalazło 'novel'
+
 def createGUI():
     result_list = allWordsToList()
     possible_words = allWordsToList()
@@ -71,6 +73,7 @@ def createGUI():
     isFirstOn = False
     isOtherOn = True
     bestWord = None
+    secondWord = None
 
     keys = [['w10', 'w11', 'w12', 'w13', 'w14'], ['w20', 'w21', 'w22', 'w23', 'w24'],
             ['w30', 'w31', 'w32', 'w33', 'w34'], ['w40', 'w41', 'w42', 'w43', 'w44'],
@@ -84,28 +87,28 @@ def createGUI():
         [getLetter(isFirstOn, 'w10'), getLetter(isFirstOn, 'w11'), getLetter(isFirstOn, 'w12'),
          getLetter(isFirstOn, 'w13'),
          getLetter(isFirstOn, 'w14'),
-         sg.Button('Enter', key='w1'), sg.Text('Progress: ', key='p1')],
-        [sg.Text('Best word:', key='r2')],
+         sg.Button('Enter', key='w1')],
+        [sg.Text('Best word:', key='r2'), sg.Text('Second option: ', key='wop2')],
         [getLetter(isOtherOn, 'w20'), getLetter(isOtherOn, 'w21'), getLetter(isOtherOn, 'w22'),
          getLetter(isOtherOn, 'w23'),
          getLetter(isOtherOn, 'w24'),
-         sg.Button('Enter', key='w2', disabled=True)],
-        [sg.Text('Best word: ', key='r3')],
+         sg.Button('Enter', key='w2', disabled=True), sg.Checkbox('Second Option', key='cop2', disabled=True)],
+        [sg.Text('Best word: ', key='r3'), sg.Text('Second option: ', key='wop3')],
         [getLetter(isOtherOn, 'w30'), getLetter(isOtherOn, 'w31'), getLetter(isOtherOn, 'w32'),
          getLetter(isOtherOn, 'w33'),
          getLetter(isOtherOn, 'w34'),
-         sg.Button('Enter', key='w3', disabled=True)],
-        [sg.Text('Best word: ', key='r4')],
+         sg.Button('Enter', key='w3', disabled=True), sg.Checkbox('Second Option', key='cop3', disabled=True)],
+        [sg.Text('Best word: ', key='r4'), sg.Text('Second option: ', key='wop3')],
         [getLetter(isOtherOn, 'w40'), getLetter(isOtherOn, 'w41'), getLetter(isOtherOn, 'w42'),
          getLetter(isOtherOn, 'w43'),
          getLetter(isOtherOn, 'w44'),
-         sg.Button('Enter', key='w4', disabled=True)],
-        [sg.Text('Best word: ', key='r5')],
+         sg.Button('Enter', key='w4', disabled=True), sg.Checkbox('Second Option', key='cop4', disabled=True)],
+        [sg.Text('Best word: ', key='r5'), sg.Text('Second option: ', key='wop4')],
         [getLetter(isOtherOn, 'w50'), getLetter(isOtherOn, 'w51'), getLetter(isOtherOn, 'w52'),
          getLetter(isOtherOn, 'w53'),
          getLetter(isOtherOn, 'w54'),
-         sg.Button('Enter', key='w5', disabled=True)],
-        [sg.Text('Best word: ', key='r6')],
+         sg.Button('Enter', key='w5', disabled=True), sg.Checkbox('Second Option', key='cop5', disabled=True)],
+        [sg.Text('Best word: ', key='r6'), sg.Text('Second option: ', key='wop5')],
         [getLetter(isOtherOn, 'w60'), getLetter(isOtherOn, 'w61'), getLetter(isOtherOn, 'w62'),
          getLetter(isOtherOn, 'w63'),
          getLetter(isOtherOn, 'w64'),
@@ -135,14 +138,18 @@ def createGUI():
             window['w12'].update(disabled=True)
             window['w13'].update(disabled=True)
             window['w14'].update(disabled=True)
+
             window['w20'].update(disabled=False)
             window['w21'].update(disabled=False)
             window['w22'].update(disabled=False)
             window['w23'].update(disabled=False)
             window['w24'].update(disabled=False)
+
+            window['cop2'].update(disabled=False)
+
             window['w1'].update(disabled=True)
             window['w2'].update(disabled=False)
-            window['p1'].update('Progress: 0%')
+
             states = ''
             for key in keys[row]:
                 states += values[key]
@@ -164,10 +171,16 @@ def createGUI():
                         isGood = True
 
             tmp.remove(['t', 'a', 'r', 'e', 's'])
-            bestWord = getBestWord(result_list, tmp)
+            bestWord, secondWord = getBestWord(result_list, tmp)
+            if secondWord is not None:
+                secondWord = secondWord.tolist()
+                secondWord = "".join(secondWord)
             bestWord = bestWord.tolist()
             bestWord = "".join(bestWord)
+
             window['r2'].update('Best word is: ' + str(bestWord).upper() + "\tcomb: " + str(len(result_list)))
+            if secondWord is not None:
+                window['wop2'].update('Second option: ' + str(secondWord).upper())
             row += 1
         elif event == 'w2' and isFilled:
             window['w20'].update(disabled=True)
@@ -175,26 +188,43 @@ def createGUI():
             window['w22'].update(disabled=True)
             window['w23'].update(disabled=True)
             window['w24'].update(disabled=True)
+
             window['w30'].update(disabled=False)
             window['w31'].update(disabled=False)
             window['w32'].update(disabled=False)
             window['w33'].update(disabled=False)
             window['w34'].update(disabled=False)
+
             window['w2'].update(disabled=True)
             window['w3'].update(disabled=False)
+
+            window['cop2'].update(disabled=False)
+
             states = ''
             for key in keys[row]:
                 states += values[key]
             correct_list, misplaced_list, wrongs = wordToStateList(bestWord, states)
             result_list = filterWordsList(result_list, correct_list, misplaced_list, wrongs)
+
+            if len(result_list) > 1:
+                window['cop3'].update(disabled=True)
+
             print(len(result_list))
             if len(result_list) > 50:
-                bestWord = getBestWord(result_list, possible_words)
+                bestWord, secondWord = getBestWord(result_list, possible_words)
                 bestWord = "".join(bestWord)
+                if secondWord is not None:
+                    secondWord = secondWord.tolist()
+                    secondWord = "".join(secondWord)
             else:
-                bestWord = freqFilter.getCommonWord(result_list)
-                bestWord = "".join(bestWord)
+                bestWord, secondWord = freqFilter.getCommonWord(result_list)
+
+            if values['cop2'] and secondWord is not None:
+                bestWord = secondWord
+
             window['r3'].update('Best word is: ' + str(bestWord).upper() + "\tcomb: " + str(len(result_list)))
+            if secondWord is not None:
+                window['wop3'].update('Second option: ' + str(secondWord).upper())
             row += 1
         elif event == 'w3' and isFilled:
             window['w30'].update(disabled=True)
@@ -202,19 +232,38 @@ def createGUI():
             window['w32'].update(disabled=True)
             window['w33'].update(disabled=True)
             window['w34'].update(disabled=True)
+
             window['w40'].update(disabled=False)
             window['w41'].update(disabled=False)
             window['w42'].update(disabled=False)
             window['w43'].update(disabled=False)
             window['w44'].update(disabled=False)
+
             window['w3'].update(disabled=True)
             window['w4'].update(disabled=False)
+
+            window['cop3'].update(disabled=False)
             states = ''
             for key in keys[row]:
                 states += values[key]
             correct_list, misplaced_list, wrongs = wordToStateList(bestWord, states)
             result_list = filterWordsList(result_list, correct_list, misplaced_list, wrongs)
-            bestWord = freqFilter.getCommonWord(result_list)
+
+            if len(result_list) > 1:
+                window['cop4'].update(disabled=True)
+
+            if len(result_list) > 50:
+                bestWord, secondWord = getBestWord(result_list, possible_words)
+                bestWord = "".join(bestWord)
+                if secondWord is not None:
+                    secondWord = secondWord.tolist()
+                    secondWord = "".join(secondWord)
+            else:
+                bestWord, secondWord = freqFilter.getCommonWord(result_list)
+
+            if values['cop3'] and secondWord is not None:
+                bestWord = secondWord
+
             bestWord = "".join(bestWord)
             window['r4'].update('Best word is: ' + str(bestWord).upper() + "\tcomb: " + str(len(result_list)))
             row += 1
@@ -236,7 +285,11 @@ def createGUI():
                 states += values[key]
             correct_list, misplaced_list, wrongs = wordToStateList(bestWord, states)
             result_list = filterWordsList(result_list, correct_list, misplaced_list, wrongs)
-            bestWord = result_list[0]
+            bestWord, secondWord = freqFilter.getCommonWord(result_list)
+
+            if values['cop4'] and secondWord is not None:
+                bestWord = secondWord
+
             bestWord = "".join(bestWord)
             window['r5'].update('Best word is: ' + str(bestWord).upper() + "\tcomb: " + str(len(result_list)))
             row += 1
@@ -258,9 +311,13 @@ def createGUI():
                 states += values[key]
             correct_list, misplaced_list, wrongs = wordToStateList(bestWord, states)
             result_list = filterWordsList(result_list, correct_list, misplaced_list, wrongs)
-            bestWord = result_list[0]
+            bestWord, secondWord = freqFilter.getCommonWord(result_list)
+
+            if values['cop5'] and secondWord is not None:
+                bestWord = secondWord
+
             bestWord = "".join(bestWord)
-            window['r5'].update('Best word is: ' + str(bestWord).upper() + "\tcomb: " + str(len(result_list)))
+            window['r6'].update('Best word is: ' + str(bestWord).upper() + "\tcomb: " + str(len(result_list)))
             row += 1
         elif event == 'w6' and isFilled:
             window['w60'].update(disabled=True)
