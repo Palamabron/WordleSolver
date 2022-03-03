@@ -27,26 +27,50 @@ def correct_letters(fiveLetterList, words_list):
 
 
 # ulepszyć
-def misplaced_letters(fiveLetterList, words_list):
+def misplaced_letters(misplacedList, words_list, correctList=None):
+    if correctList is None:
+        correctList = ['_', '_', '_', '_', '_']
     result_list = []
     # .filter(lambda val: val != '_')
+    correctChars = []
     chars = []
     charsIndex = []
-    for i in range(len(fiveLetterList)):
-        if fiveLetterList[i] != '_':
-            chars.append(fiveLetterList[i])
+    bugIndex = None
+    isBug = False
+    for i in range(len(misplacedList)):
+        if misplacedList[i] != '_':
+            chars.append(misplacedList[i])
             charsIndex.append(i)
+        if correctList[i] != '_':
+            correctChars.append(correctList[i])
+    if len(correctChars) != 0:
+        for i in range(len(correctList)):
+            if words_list[i] in chars:
+                isBug = True
+                bugIndex = i
+                break
+    if not isBug:
+        for word_list in words_list:
+            isGood = 1
+            if set(chars).issubset(word_list):
+                for j in range(len(charsIndex)):
+                    if word_list[charsIndex[j]] == chars[j]:
+                        isGood = 0
+                if isGood:
+                    result_list.append(word_list)
 
-    for word_list in words_list:
-        isGood = 1
-        if set(chars).issubset(word_list):
-            for j in range(len(charsIndex)):
-                if word_list[charsIndex[j]] == chars[j]:
-                    isGood = 0
-            if isGood:
-                result_list.append(word_list)
+        return result_list
+    else:
+        for word_list in words_list:
+            isGood = 1
+            if set(chars).issubset(word_list):
+                for j in range(len(charsIndex)):
+                    if word_list[charsIndex[j]] == chars[j] and bugIndex != j:
+                        isGood = 0
+                if isGood:
+                    result_list.append(word_list)
 
-    return result_list
+        return result_list
 
 
 def not_in_word_letters(chars, words_list):
@@ -138,9 +162,6 @@ def main():
 
     # # jak misplaced to nie mozna byc w miejscu w ktorym bylo
     print(len(words))
-    writeToFile(words)
+    # writeToFile(words)
 
     # print(['_', '_', 'o', '_', '_'].filter(lambda val: val != '_'))
-
-
-main()
